@@ -12,7 +12,7 @@ def get_entries(path):
         return [parse_line(line) for line in f.read().splitlines()]
 
 
-def is_valid(char, nmin, nmax, password):
+def is_valid_1(char, nmin, nmax, password):
     count = sum(1 for c in password if c == char)
     if count < nmin:
         return False
@@ -21,9 +21,19 @@ def is_valid(char, nmin, nmax, password):
     return True
 
 
+def is_valid_2(char, index1, index2, password):
+    match1 = password[index1 - 1] == char
+    match2 = password[index2 - 1] == char
+    return match1 != match2
+
+
 def main(path):
     entries = get_entries(path)
-    count = sum(1 for e in entries if is_valid(*e))
+
+    count = sum(1 for e in entries if is_valid_1(*e))
+    print(count)
+
+    count = sum(1 for e in entries if is_valid_2(*e))
     print(count)
 
 
