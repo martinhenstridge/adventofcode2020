@@ -1,6 +1,8 @@
-def get_numbers(path):
-    with open(path) as f:
-        return {int(line) for line in f.read().splitlines()}
+from . import util
+
+
+def get_numbers(lines):
+    return {int(line) for line in lines}
 
 
 def find_sum_pair(target, inputs):
@@ -23,21 +25,15 @@ def find_sum_triple(target, inputs):
             continue
         else:
             return n1, pair[0], pair[1]
+    raise ValueError
 
 
-def main(path, target):
-    numbers = get_numbers(path)
+def run():
+    inputlines = util.get_input_lines("01.txt")
+    numbers = get_numbers(inputlines)
 
-    pair = find_sum_pair(target, numbers)
-    product = pair[0] * pair[1]
-    print("Pair:")
-    print(product, pair)
+    pair = find_sum_pair(2020, numbers)
+    print(pair[0] * pair[1])
 
-    triple = find_sum_triple(target, numbers)
-    product = triple[0] * triple[1] * triple[2]
-    print("Triple:")
-    print(product, triple)
-
-
-if __name__ == "__main__":
-    main("input", 2020)
+    triple = find_sum_triple(2020, numbers)
+    print(triple[0] * triple[1] * triple[2])

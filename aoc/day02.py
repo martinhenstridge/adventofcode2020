@@ -1,15 +1,13 @@
 import re
+from . import util
 
 
-def get_entries(path):
-    # 5-11 t: glhbttzvzttkdx
+def get_entries(lines):
     def parse_line(line):
         match = re.match(r"(\d+)-(\d+) (\w)\: (\w+)", line)
         assert match is not None
         return match[3], int(match[1]), int(match[2]), match[4]
-        
-    with open(path) as f:
-        return [parse_line(line) for line in f.read().splitlines()]
+    return [parse_line(line) for line in lines]
 
 
 def is_valid_1(char, nmin, nmax, password):
@@ -27,15 +25,12 @@ def is_valid_2(char, index1, index2, password):
     return match1 != match2
 
 
-def main(path):
-    entries = get_entries(path)
+def run():
+    inputlines = util.get_input_lines("02.txt")
+    entries = get_entries(inputlines)
 
     count = sum(1 for e in entries if is_valid_1(*e))
     print(count)
 
     count = sum(1 for e in entries if is_valid_2(*e))
     print(count)
-
-
-if __name__ == "__main__":
-    main("input")
