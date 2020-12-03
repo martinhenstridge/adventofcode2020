@@ -40,3 +40,8 @@ def run():
 
     count = grid.tree_count(3, 1)
     print(count)
+
+    product = 1
+    for dx, dy in [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]:
+        product *= grid.tree_count(dx, dy)
+    print(product)
