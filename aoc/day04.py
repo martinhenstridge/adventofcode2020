@@ -63,7 +63,7 @@ def check_hcl(val):
 
 def check_ecl(val):
     # exactly one of: amb blu brn gry grn hzl oth.
-    return len(val) == 3 and val in {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"}
+    return re.match(r"^(amb|blu|brn|gry|grn|hzl|oth)$", val) is not None
 
 
 def check_pid(val):
