@@ -23,21 +23,21 @@ def into_passport(entry):
 
 def is_valid_byr(val):
     # four digits; at least 1920 and at most 2002.
-    if re.match(r"^[0-9]{4}$", val) is None:
+    if re.fullmatch(r"[0-9]{4}", val) is None:
         return False
     return 1920 <= int(val) <= 2002
 
 
 def is_valid_iyr(val):
     # four digits; at least 2010 and at most 2020.
-    if re.match(r"^[0-9]{4}$", val) is None:
+    if re.fullmatch(r"[0-9]{4}", val) is None:
         return False
     return 2010 <= int(val) <= 2020
 
 
 def is_valid_eyr(val):
     # four digits; at least 2020 and at most 2030.
-    if re.match(r"^[0-9]{4}$", val) is None:
+    if re.fullmatch(r"[0-9]{4}", val) is None:
         return False
     return 2020 <= int(val) <= 2030
 
@@ -46,7 +46,7 @@ def is_valid_hgt(val):
     # a number followed by either cm or in:
     # - If cm, the number must be at least 150 and at most 193.
     # - If in, the number must be at least 59 and at most 76.
-    match = re.match(r"^([0-9]+)(cm|in)$", val)
+    match = re.fullmatch(r"([0-9]+)(cm|in)", val)
     if match is None:
         return False
     if match[2] == "cm":
@@ -58,17 +58,17 @@ def is_valid_hgt(val):
 
 def is_valid_hcl(val):
     # a # followed by exactly six characters 0-9 or a-f.
-    return re.match(r"^\#[0-9a-f]{6}$", val) is not None
+    return re.fullmatch(r"\#[0-9a-f]{6}", val) is not None
 
 
 def is_valid_ecl(val):
     # exactly one of: amb blu brn gry grn hzl oth.
-    return re.match(r"^(amb|blu|brn|gry|grn|hzl|oth)$", val) is not None
+    return re.fullmatch(r"(amb|blu|brn|gry|grn|hzl|oth)", val) is not None
 
 
 def is_valid_pid(val):
     # a nine-digit number, including leading zeroes.
-    return re.match(r"^[0-9]{9}$", val) is not None
+    return re.fullmatch(r"[0-9]{9}", val) is not None
 
 
 FIELDS = {
