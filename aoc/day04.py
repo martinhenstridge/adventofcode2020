@@ -21,28 +21,28 @@ def into_passport(entry):
     return passport
 
 
-def check_byr(val):
+def is_valid_byr(val):
     # four digits; at least 1920 and at most 2002.
     if re.match(r"^[0-9]{4}$", val) is None:
         return False
     return 1920 <= int(val) <= 2002
 
 
-def check_iyr(val):
+def is_valid_iyr(val):
     # four digits; at least 2010 and at most 2020.
     if re.match(r"^[0-9]{4}$", val) is None:
         return False
     return 2010 <= int(val) <= 2020
 
 
-def check_eyr(val):
+def is_valid_eyr(val):
     # four digits; at least 2020 and at most 2030.
     if re.match(r"^[0-9]{4}$", val) is None:
         return False
     return 2020 <= int(val) <= 2030
 
 
-def check_hgt(val):
+def is_valid_hgt(val):
     # a number followed by either cm or in:
     # - If cm, the number must be at least 150 and at most 193.
     # - If in, the number must be at least 59 and at most 76.
@@ -56,29 +56,29 @@ def check_hgt(val):
     return False
 
 
-def check_hcl(val):
+def is_valid_hcl(val):
     # a # followed by exactly six characters 0-9 or a-f.
     return re.match(r"^\#[0-9a-f]{6}$", val) is not None
 
 
-def check_ecl(val):
+def is_valid_ecl(val):
     # exactly one of: amb blu brn gry grn hzl oth.
     return re.match(r"^(amb|blu|brn|gry|grn|hzl|oth)$", val) is not None
 
 
-def check_pid(val):
+def is_valid_pid(val):
     # a nine-digit number, including leading zeroes.
     return re.match(r"^[0-9]{9}$", val) is not None
 
 
 FIELDS = {
-    "byr": check_byr,
-    "iyr": check_iyr,
-    "eyr": check_eyr,
-    "hgt": check_hgt,
-    "hcl": check_hcl,
-    "ecl": check_ecl,
-    "pid": check_pid,
+    "byr": is_valid_byr,
+    "iyr": is_valid_iyr,
+    "eyr": is_valid_eyr,
+    "hgt": is_valid_hgt,
+    "hcl": is_valid_hcl,
+    "ecl": is_valid_ecl,
+    "pid": is_valid_pid,
 }
 
 
@@ -87,7 +87,7 @@ def is_valid_1(passport):
 
 
 def is_valid_2(passport):
-    return all(f in passport and check(passport[f]) for f, check in FIELDS.items())
+    return all(f in passport and valid(passport[f]) for f, valid in FIELDS.items())
 
 
 def run():
