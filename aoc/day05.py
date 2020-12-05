@@ -1,28 +1,28 @@
 from . import util
 
 
-def apply_f(row, col):
-    rmin, rmax = row
+def apply_f(rows, cols):
+    rmin, rmax = rows
     step = (1 + rmax - rmin) // 2
-    return (rmin, rmax - step), col
+    return (rmin, rmax - step), cols
 
 
-def apply_b(row, col):
-    rmin, rmax = row
+def apply_b(rows, cols):
+    rmin, rmax = rows
     step = (1 + rmax - rmin) // 2
-    return (rmin + step, rmax), col
+    return (rmin + step, rmax), cols
 
 
-def apply_l(row, col):
-    cmin, cmax = col
+def apply_l(rows, cols):
+    cmin, cmax = cols
     step = (1 + cmax - cmin) // 2
-    return row, (cmin, cmax - step)
+    return rows, (cmin, cmax - step)
 
 
-def apply_r(row, col):
-    cmin, cmax = col
+def apply_r(rows, cols):
+    cmin, cmax = cols
     step = (1 + cmax - cmin) // 2
-    return row, (cmin + step, cmax)
+    return rows, (cmin + step, cmax)
 
 
 APPLY = {
@@ -33,26 +33,36 @@ APPLY = {
 }
 
 
-def find_seat(chars):
-    row = (0, 127)
-    col = (0, 7)
+def get_seatid(chars):
+    rows = (0, 127)
+    cols = (0, 7)
 
     for char in chars:
-        row, col = APPLY[char](row, col)
+        rows, cols = APPLY[char](rows, cols)
 
-    assert row[0] == row[1]
-    assert col[0] == col[1]
+    assert rows[0] == rows[1]
+    assert cols[0] == cols[1]
 
-    return row[0], col[0]
+    return cols[0] + (8 * rows[0])
 
 
-def seat_id(row, col):
-    return col + (row * 8)
+def find_vacant_seat(filled):
+    vacant = {seatid for seatid in range(128 * 8) if seatid not in filled}
+    for seatid in vacant:
+        if (seatid + 1) in vacant:
+            continue
+        if (seatid - 1) in vacant:
+            continue
+        return seatid
+    assert False
 
 
 def run():
     inputlines = util.get_input_lines("05.txt")
-    seats = [find_seat(line) for line in inputlines]
+    seatids = {get_seatid(line) for line in inputlines}
 
-    idmax = max(seat_id(row, col) for row, col in seats)
-    print(idmax)
+    maxid = max(seatids)
+    print(maxid)
+
+    myseat = find_vacant_seat(seatids)
+    print(myseat)
