@@ -1,21 +1,35 @@
-import re
 from . import util
 
 
 def get_groups(lines):
-    parts = []
+    members = []
     for line in lines:
         if line:
-            parts.append(line)
+            members.append(line)
         else:
-            yield "".join(parts)
-            parts = []
-    yield "".join(parts)
+            yield members
+            members = []
+    yield members
+
+
+def count_1(group):
+    answers = {answer for member in group for answer in member}
+    return len(answers)
+
+
+def count_2(group):
+    answers = set("abcdefghijklmnopqrstuvwxyz")
+    for member in group:
+        answers.intersection_update(member)
+    return len(answers)
 
 
 def run():
     inputlines = util.get_input_lines("06.txt")
-    groups = [set(group) for group in get_groups(inputlines)]
+    groups = [group for group in get_groups(inputlines)]
 
-    countsum = sum(len(group) for group in groups)
+    countsum = sum(count_1(group) for group in groups)
+    print(countsum)
+
+    countsum = sum(count_2(group) for group in groups)
     print(countsum)
