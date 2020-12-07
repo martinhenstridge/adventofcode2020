@@ -25,9 +25,9 @@ def get_baginfo(lines):
 
 
 @util.memoize
-def is_parent(bag, baginfo, target):
-    return target in baginfo[bag] or any(
-        is_parent(child, baginfo, target) for child in baginfo[bag]
+def is_parent(bag, baginfo):
+    return "shiny gold" in baginfo[bag] or any(
+        is_parent(child, baginfo) for child in baginfo[bag]
     )
 
 
@@ -43,7 +43,7 @@ def run():
     inputlines = util.get_input_lines("07.txt")
     baginfo = get_baginfo(inputlines)
 
-    num_parents = sum(1 for bag in baginfo if is_parent(bag, baginfo, "shiny gold"))
+    num_parents = sum(1 for bag in baginfo if is_parent(bag, baginfo))
     num_children = count_children("shiny gold", baginfo)
 
     return num_parents, num_children
