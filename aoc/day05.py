@@ -62,7 +62,6 @@ def run():
     seatids = {get_seatid(line) for line in inputlines}
 
     maxid = max(seatids)
-    print(maxid)
-
     myseat = find_vacant_seat(seatids)
-    print(myseat)
+
+    return maxid, myseat

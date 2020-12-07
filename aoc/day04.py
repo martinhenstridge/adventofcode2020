@@ -94,8 +94,7 @@ def run():
     inputlines = util.get_input_lines("04.txt")
     passports = [into_passport(e) for e in get_entries(inputlines)]
 
-    count = sum(1 for p in passports if is_valid_1(p))
-    print(count)
+    count_1 = sum(1 for p in passports if is_valid_1(p))
+    count_2 = sum(1 for p in passports if is_valid_2(p))
 
-    count = sum(1 for p in passports if is_valid_2(p))
-    print(count)
+    return count_1, count_2

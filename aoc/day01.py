@@ -33,7 +33,6 @@ def run():
     numbers = get_numbers(inputlines)
 
     pair = find_sum_pair(2020, numbers)
-    print(util.product(pair))
-
     triple = find_sum_triple(2020, numbers)
-    print(util.product(triple))
+
+    return util.product(pair), util.product(triple)

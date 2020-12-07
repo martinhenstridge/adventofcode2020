@@ -28,8 +28,7 @@ def run():
     inputlines = util.get_input_lines("06.txt")
     groups = [group for group in get_groups(inputlines)]
 
-    countsum = sum(count_1(group) for group in groups)
-    print(countsum)
+    countsum_1 = sum(count_1(group) for group in groups)
+    countsum_2 = sum(count_2(group) for group in groups)
 
-    countsum = sum(count_2(group) for group in groups)
-    print(countsum)
+    return countsum_1, countsum_2

@@ -2,9 +2,15 @@ import sys
 from . import DAYS
 
 
+def run(solvers, day):
+    print()
+    parts = solvers[day].run()
+    for idx, part in enumerate(parts):
+        print(f"[{day}|{idx+1}] {part}")
+
+
 if len(sys.argv) > 1:
-    DAYS[sys.argv[1]].run()
+    run(DAYS, sys.argv[1])
 else:
-    for day, solution in DAYS.items():
-        print("\n>>> Day", day)
-        solution.run()
+    for day in DAYS:
+        run(DAYS, day)

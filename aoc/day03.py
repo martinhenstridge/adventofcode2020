@@ -23,9 +23,8 @@ def run():
     grid = Grid(inputlines)
 
     count = grid.count("#", 3, 1)
-    print(count)
-
     product = util.product(
         grid.count("#", dx, dy) for dx, dy in [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]
     )
-    print(product)
+
+    return count, product

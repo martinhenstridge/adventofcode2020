@@ -29,8 +29,7 @@ def run():
     inputlines = util.get_input_lines("02.txt")
     entries = get_entries(inputlines)
 
-    count = sum(1 for e in entries if is_valid_1(*e))
-    print(count)
+    count_1 = sum(1 for e in entries if is_valid_1(*e))
+    count_2 = sum(1 for e in entries if is_valid_2(*e))
 
-    count = sum(1 for e in entries if is_valid_2(*e))
-    print(count)
+    return count_1, count_2
