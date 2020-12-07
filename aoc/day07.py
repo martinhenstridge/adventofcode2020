@@ -9,10 +9,9 @@ def get_baginfo(lines):
 
         # words ~ ["pale", "cyan", "bags", "contain", ...]
         (adj, col, _, _), words = words[:4], words[4:]
+        bag = f"{adj} {col}"
 
-        children = {}
-        baginfo[f"{adj} {col}"] = children
-
+        baginfo[bag] = {}
         while words:
             if words[0] == "no":
                 # words ~ ["no", "other", "bags.", ...]
@@ -20,7 +19,7 @@ def get_baginfo(lines):
             else:
                 # words ~ ["2", "posh", "black", "bags,"]
                 (num, adj, col, _), words = words[:4], words[4:]
-                children[f"{adj} {col}"] = int(num)
+                baginfo[bag][f"{adj} {col}"] = int(num)
 
     return baginfo
 
