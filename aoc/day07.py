@@ -5,30 +5,22 @@ def get_baginfo(lines):
     baginfo = {}
 
     for line in lines:
-        # words ~ [
-        #     pale cyan bags contain
-        #     2 posh black bags,
-        #     4 wavy gold bags,
-        #     2 vibrant brown bags.
-        # ]
         words = line.split()
 
         # words ~ ["pale", "cyan", "bags", "contain", ...]
         (adj, col, _, _), words = words[:4], words[4:]
 
-        bag = f"{adj} {col}"
         children = {}
+        baginfo[f"{adj} {col}"] = children
 
         while words:
             if words[0] == "no":
-                # words ~ ["no", "other", "bags."]
+                # words ~ ["no", "other", "bags.", ...]
                 words = words[3:]
             else:
                 # words ~ ["2", "posh", "black", "bags,"]
                 (num, adj, col, _), words = words[:4], words[4:]
                 children[f"{adj} {col}"] = int(num)
-
-        baginfo[bag] = children
 
     return baginfo
 
