@@ -1,49 +1,20 @@
 from . import util
 
 
-def apply_f(rows, cols):
-    rmin, rmax = rows
-    step = (1 + rmax - rmin) // 2
-    return (rmin, rmax - step), cols
-
-
-def apply_b(rows, cols):
-    rmin, rmax = rows
-    step = (1 + rmax - rmin) // 2
-    return (rmin + step, rmax), cols
-
-
-def apply_l(rows, cols):
-    cmin, cmax = cols
-    step = (1 + cmax - cmin) // 2
-    return rows, (cmin, cmax - step)
-
-
-def apply_r(rows, cols):
-    cmin, cmax = cols
-    step = (1 + cmax - cmin) // 2
-    return rows, (cmin + step, cmax)
-
-
-APPLY = {
-    "F": apply_f,
-    "B": apply_b,
-    "L": apply_l,
-    "R": apply_r,
+DIGITS = {
+    "F": 0,
+    "B": 1,
+    "L": 0,
+    "R": 1,
 }
 
 
 def get_seatid(chars):
-    rows = (0, 127)
-    cols = (0, 7)
-
+    # Input maps to seat ID in binary, with F|L = 0 and B|R = 1.
+    seatid = 0
     for char in chars:
-        rows, cols = APPLY[char](rows, cols)
-
-    assert rows[0] == rows[1]
-    assert cols[0] == cols[1]
-
-    return cols[0] + (8 * rows[0])
+        seatid = DIGITS[char] + (2 * seatid)
+    return seatid
 
 
 def find_vacant_seat(filled):
