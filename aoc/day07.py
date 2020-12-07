@@ -14,10 +14,10 @@ def get_baginfo(lines):
         baginfo[bag] = {}
         while words:
             if words[0] == "no":
-                # words ~ ["no", "other", "bags.", ...]
-                words = words[3:]
+                # words ~ ["no", "other", "bags."]
+                break
             else:
-                # words ~ ["2", "posh", "black", "bags,"]
+                # words ~ ["2", "posh", "black", "bags," ...]
                 (num, adj, col, _), words = words[:4], words[4:]
                 baginfo[bag][f"{adj} {col}"] = int(num)
 
@@ -25,16 +25,17 @@ def get_baginfo(lines):
 
 
 @util.memoize
-def can_contain(bag, baginfo, target):
+def is_parent(bag, baginfo, target):
     return target in baginfo[bag] or any(
-        can_contain(child, baginfo, target) for child in baginfo[bag]
+        is_parent(child, baginfo, target) for child in baginfo[bag]
     )
 
 
 @util.memoize
-def contains(bag, baginfo):
+def count_children(bag, baginfo):
     return sum(
-        count * (1 + contains(child, baginfo)) for child, count in baginfo[bag].items()
+        count * (1 + count_children(child, baginfo))
+        for child, count in baginfo[bag].items()
     )
 
 
@@ -42,7 +43,7 @@ def run():
     inputlines = util.get_input_lines("07.txt")
     baginfo = get_baginfo(inputlines)
 
-    containers = sum(1 for bag in baginfo if can_contain(bag, baginfo, "shiny gold"))
-    contained = contains("shiny gold", baginfo)
+    num_parents = sum(1 for bag in baginfo if is_parent(bag, baginfo, "shiny gold"))
+    num_children = count_children("shiny gold", baginfo)
 
-    return containers, contained
+    return num_parents, num_children
