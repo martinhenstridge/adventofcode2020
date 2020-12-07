@@ -13,47 +13,43 @@ def get_baginfo(lines):
         # ]
         words = line.split()
 
-        # head ~ [pale cyan bags contain]
-        head, rest = words[:4], words[4:]
-        bag = " ".join(head[:2])
+        # words ~ ["pale", "cyan", "bags", "contain", ...]
+        (adj, col, _, _), words = words[:4], words[4:]
 
-        baginfo[bag] = {}
-        while rest:
-            if rest[0] == "no":
-                # info ~ [no other bags.]
-                info, rest = rest[:3], rest[3:]
+        bag = f"{adj} {col}"
+        children = {}
+
+        while words:
+            if words[0] == "no":
+                # words ~ ["no", "other", "bags."]
+                words = words[3:]
             else:
-                # info ~ [2 posh black bags,]
-                info, rest = rest[:4], rest[4:]
-                child = " ".join(info[1:3])
-                baginfo[bag][child] = int(info[0])
+                # words ~ ["2", "posh", "black", "bags,"]
+                (num, adj, col, _), words = words[:4], words[4:]
+                children[f"{adj} {col}"] = int(num)
+
+        baginfo[bag] = children
 
     return baginfo
 
 
-CACHE1 = {}
-CACHE2 = {}
-
-
+@util.memoize
 def can_contain(bag, baginfo, target):
-    if bag not in CACHE1:
-        CACHE1[bag] = target in baginfo[bag] or any(
-            can_contain(child, baginfo, target) for child in baginfo[bag]
-        )
-    return CACHE1[bag]
+    return target in baginfo[bag] or any(
+        can_contain(child, baginfo, target) for child in baginfo[bag]
+    )
 
 
-def contains(baginfo, bag):
-    if bag not in CACHE2:
-        CACHE2[bag] = sum(count * (1 + contains(baginfo, child)) for child, count in baginfo[bag].items())
-    return CACHE2[bag]
+@util.memoize
+def contains(bag, baginfo):
+    return sum(count * (1 + contains(child, baginfo)) for child, count in baginfo[bag].items())
 
 
 def run():
     inputlines = util.get_input_lines("07.txt")
     baginfo = get_baginfo(inputlines)
 
-    capable = [bag for bag in baginfo if can_contain(bag, baginfo, "shiny gold")]
-    inside = contains(baginfo, "shiny gold")
+    containers = sum(1 for bag in baginfo if can_contain(bag, baginfo, "shiny gold"))
+    contained = contains("shiny gold", baginfo)
 
-    return len(capable), inside
+    return containers, contained
