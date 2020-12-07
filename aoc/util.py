@@ -1,6 +1,6 @@
 import operator
+import functools
 from os.path import abspath, dirname, join
-from functools import reduce, wraps
 
 
 _ROOT = dirname(dirname(abspath(__file__)))
@@ -13,14 +13,14 @@ def get_input_lines(name):
 
 
 def product(numbers):
-    return reduce(operator.mul, numbers, 1)
+    return functools.reduce(operator.mul, numbers, 1)
 
 
 def memoize(fn):
     cache = {}
-    @wraps(fn)
-    def wrapped(key, *args):
+    @functools.wraps(fn)
+    def wrapped(key, *args, **kwargs):
         if key not in cache:
-            cache[key] = fn(key, *args)
+            cache[key] = fn(key, *args, **kwargs)
         return cache[key]
     return wrapped
