@@ -33,7 +33,9 @@ def can_contain(bag, baginfo, target):
 
 @util.memoize
 def contains(bag, baginfo):
-    return sum(count * (1 + contains(child, baginfo)) for child, count in baginfo[bag].items())
+    return sum(
+        count * (1 + contains(child, baginfo)) for child, count in baginfo[bag].items()
+    )
 
 
 def run():

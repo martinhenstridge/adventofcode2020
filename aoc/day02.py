@@ -7,6 +7,7 @@ def get_entries(lines):
         match = re.match(r"(\d+)-(\d+) (\w)\: (\w+)", line)
         assert match is not None
         return match[3], int(match[1]), int(match[2]), match[4]
+
     return [parse_line(line) for line in lines]
 
 
