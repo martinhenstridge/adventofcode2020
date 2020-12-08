@@ -42,25 +42,25 @@ def run():
     acc1, visited, _ = boot(instructions)
 
     # The faulty instruction must have been visited during part 1, try modifying
-    # each in turn.
+    # each visited instruction in turn.
     for idx in sorted(visited):
+        # Modify the instruction as appropriate. Skip any 'nop' instructions
+        # with an argument of 0 - translated into a 'jmp this is an immediate
+        # infinite loop.
         ins, arg = instructions[idx]
-
-        # Modify the instruction as appropriate, making sure to avoid inserting
-        # a jmp +0 instruction.
-        if ins == "acc":
-            continue
         if ins == "jmp":
             instructions[idx] = ("nop", arg)
         elif ins == "nop" and arg != 0:
             instructions[idx] = ("jmp", arg)
+        else:
+            continue
 
-        # Run the modified instruction list, replacing the original instruction
-        # when finished.
+        # Run the modified instruction list, then replace the original
+        # instruction when finished.
         acc2, _, term = boot(instructions)
         instructions[idx] = (ins, arg)
 
-        # The instruction list now terminates, we're done.
+        # If the modified instruction list now terminates, we're done.
         if term:
             break
 
