@@ -14,10 +14,25 @@ def find_invalid(numbers):
         window.add(numbers[idx + 25])
 
 
+def find_sum_sequence(numbers, target):
+    head = 0
+    tail = 0
+
+    while True:
+        total = sum(numbers[tail:head])
+        if total == target:
+            return numbers[tail:head]
+        if total < target:
+            head += 1
+        else:
+            tail += 1
+
+
 def run():
     inputlines = util.get_input_lines("09.txt")
     numbers = get_numbers(inputlines)
 
     invalid = find_invalid(numbers)
+    sequence = find_sum_sequence(numbers, invalid)
 
-    return (invalid,)
+    return (invalid, min(sequence) + max(sequence))
