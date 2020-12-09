@@ -16,17 +16,18 @@ def find_invalid(numbers, plen):
 
 def find_sequence(numbers, target):
     head = 0
-    tail = 0
+    foot = 0
     total = 0
 
     while total != target:
         if total < target:
+            total += numbers[head]
             head += 1
         else:
-            tail += 1
-        total = sum(numbers[tail:head])
+            total -= numbers[foot]
+            foot += 1
 
-    return numbers[tail:head]
+    return numbers[foot:head]
 
 
 def run():
