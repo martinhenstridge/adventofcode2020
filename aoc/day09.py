@@ -17,15 +17,15 @@ def find_invalid(numbers):
 def find_sum_sequence(numbers, target):
     head = 0
     tail = 0
+    total = 0
 
-    while True:
-        total = sum(numbers[tail:head])
-        if total == target:
-            return numbers[tail:head]
+    while total != target:
         if total < target:
             head += 1
         else:
             tail += 1
+        total = sum(numbers[tail:head])
+    return numbers[tail:head]
 
 
 def run():
