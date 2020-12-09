@@ -25,6 +25,7 @@ def find_sum_sequence(numbers, target):
         else:
             tail += 1
         total = sum(numbers[tail:head])
+
     return numbers[tail:head]
 
 
