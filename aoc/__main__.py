@@ -4,10 +4,11 @@ from . import DAYS
 
 
 def run(solvers, day):
-    print()
     start = time.monotonic()
     parts = solvers[day].run()
     end = time.monotonic()
+
+    print()
     for idx, part in enumerate(parts):
         print(f"[{day}/{idx+1}] {part}")
     print(f"{1000 * (end - start):.3f}ms")

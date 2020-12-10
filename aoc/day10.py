@@ -17,57 +17,53 @@ def count_differences(chain):
     return diffs
 
 
-# Consecutive adapters in the valid chain all differ from their immediate
-# neighbours by either 1 jolt or 3 jolts. Since the maximum allowed difference
-# is 3 jolts, the only additional valid chains of adapters are those omitting
-# some combination of adapters from a streak of adapters which all differ from
-# their neighbours by 1 jolt.
-#
-# The total number of valid combinations is equal to the product of the number
-# of valid combinations for each such streak. The location and contents of each
-# streak is irrelevant, only its length is significant.
-#
-# The longest streak of consecutive joltage values from the input provided has a
-# length of 5, and the shortest streak which can possibly have at least one
-# adapter removed is of length 3. For this range, all possible permutations are
-# listed below:
-#
-# x x x
-# x . x
-#
-# x x x x
-# x . x x
-# x x . x
-# x . . x
-#
-# x x x x x
-# x . x x x
-# x x . x x
-# x x x . x
-# x . . x x
-# x . x . x
-# x x . . x
-COMBINATIONS = {
-    3: 2,
-    4: 4,
-    5: 7,
-}
+def count_permutations(subsection):
+    # As it happens, in the current input dataset, all differences < 3 jolts are
+    # exactly 1 jolt. This means the contents of each section is irrelevant,
+    # only its length is significant when counting permutations.
+    for a, b in get_joltage_pairs(subsection):
+        assert b - a == 1
+
+    # Within the current input dataset, the longest streak of consecutive values
+    # is of length 5. The shortest possible streak is of length 2. All possible
+    # permutations for sections of these lengths are listed below:
+    #
+    # 1 - x x
+    #
+    # 1 - x x x
+    # 2 - x . x
+    #
+    # 1 - x x x x
+    # 2 - x . x x
+    # 3 - x x . x
+    # 4 - x . . x
+    #
+    # 1 - x x x x x
+    # 2 - x . x x x
+    # 3 - x x . x x
+    # 4 - x x x . x
+    # 5 - x . . x x
+    # 6 - x . x . x
+    # 7 - x x . . x
+    PERMUTATIONS = {
+        2: 1,
+        3: 2,
+        4: 4,
+        5: 7,
+    }
+    return PERMUTATIONS[len(subsection)]
 
 
-def find_streaks(chain):
+def find_subsections(chain):
     start = None
     for idx, (a, b) in enumerate(get_joltage_pairs(chain)):
-        if b - a == 1:
+        if b - a < 3:
             if start is None:
                 start = idx
         else:
-            if start is not None and idx - start > 1:
+            if start is not None:
                 yield chain[start : idx + 1]
             start = None
-
-
-def count_combinations(chain):
-    return util.product(COMBINATIONS[len(streak)] for streak in find_streaks(chain))
 
 
 def run():
@@ -81,6 +77,13 @@ def run():
     chain = sorted(joltages)
 
     diffs = count_differences(chain)
-    combs = count_combinations(chain)
 
-    return (diffs[1] * diffs[3], combs)
+    # The maximum allowed joltage difference between adjacent adapters is 3
+    # jolts, so adapter differing from either of its neighbours by this amount
+    # cannot be removed. The full chain can therefore be split at these points
+    # to form distinct sub-sections from which adapters _can_ be removed. The
+    # total number of permutations for the whole chain is then the product of
+    # the number of permutations for each such sub-section.
+    perms = util.product(count_permutations(s) for s in find_subsections(chain))
+
+    return (diffs[1] * diffs[3], perms)
