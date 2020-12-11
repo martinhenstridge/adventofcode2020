@@ -23,7 +23,7 @@ class Grid:
 
         # This is the pre-computed set of neighbours for each seat
         self.neighbours = [
-            self.precompute_neighbours(row, col)
+            self.precompute_neighbours(row, col) if lines[row][col] != "." else []
             for row in range(self.rowmax)
             for col in range(self.colmax)
         ]
