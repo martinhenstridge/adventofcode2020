@@ -15,46 +15,43 @@ class Grid:
     ]
 
     def __init__(self, lines):
-        self.seats = lines
-        self.numrows = len(lines)
-        self.numcols = len(lines[0])
+        self.rowmax = len(lines)
+        self.colmax = len(lines[0])
+        self.seats = [char for line in lines for char in line]
 
         self.neighbours = [
-            [self.precompute_neighbours(row, col) for col in range(self.numcols)]
-            for row in range(self.numrows)
+            self.precompute_neighbours(row, col)
+            for row in range(self.rowmax)
+            for col in range(self.colmax)
         ]
 
     def precompute_neighbours(self, row, col):
         raise NotImplementedError
 
-    def nextgen(self, row, col):
-        curr = self.seats[row][col]
+    def nextgen(self, idx):
+        curr = self.seats[idx]
         if curr == "L":
-            for r, c in self.neighbours[row][col]:
-                if self.seats[r][c] == "#":
+            for neighbour in self.neighbours[idx]:
+                if self.seats[neighbour] == "#":
                     return curr
             return "#"
         if curr == "#":
             count = 0
-            for r, c in self.neighbours[row][col]:
-                if self.seats[r][c] == "#":
+            for neighbour in self.neighbours[idx]:
+                if self.seats[neighbour] == "#":
                     count += 1
                     if count == self.THRESHOLD:
                         return "L"
         return curr
 
     def update(self):
-        newseats = [
-            "".join(self.nextgen(row, col) for col in range(self.numcols))
-            for row in range(self.numrows)
-        ]
-        stable = newseats == self.seats
-
-        self.seats = newseats
+        updated = [self.nextgen(idx) for idx in range(len(self.seats))]
+        stable = updated == self.seats
+        self.seats = updated
         return stable
 
     def occupied(self):
-        return sum(1 for row in self.seats for seat in row if seat == "#")
+        return sum(1 for seat in self.seats if seat == "#")
 
     def dump(self):
         for row in self.seats:
@@ -69,13 +66,14 @@ class Grid1(Grid):
         for drow, dcol in self.DIRECTIONS:
             nrow = row + drow
             ncol = col + dcol
-            if nrow < 0 or nrow >= self.numrows:
+            nidx = ncol + (nrow * self.colmax)
+            if nrow < 0 or nrow >= self.rowmax:
                 continue
-            if ncol < 0 or ncol >= self.numcols:
+            if ncol < 0 or ncol >= self.colmax:
                 continue
-            if self.seats[nrow][ncol] == ".":
+            if self.seats[nidx] == ".":
                 continue
-            neighbours.append((nrow, ncol))
+            neighbours.append(nidx)
         return neighbours
 
 
@@ -90,12 +88,13 @@ class Grid2(Grid):
             while True:
                 nrow += drow
                 ncol += dcol
-                if nrow < 0 or nrow >= self.numrows:
+                nidx = ncol + (nrow * self.colmax)
+                if nrow < 0 or nrow >= self.rowmax:
                     break
-                if ncol < 0 or ncol >= self.numcols:
+                if ncol < 0 or ncol >= self.colmax:
                     break
-                if self.seats[nrow][ncol] == "L":
-                    neighbours.append((nrow, ncol))
+                if self.seats[nidx] == "L":
+                    neighbours.append(nidx)
                     break
         return neighbours
 
