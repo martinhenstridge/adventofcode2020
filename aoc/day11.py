@@ -28,34 +28,31 @@ class Grid:
     def precompute_neighbours(self, row, col):
         raise NotImplementedError
 
-    def nextgen(self, idx):
-        curr = self.seats[idx]
-        if curr == "L":
-            for neighbour in self.neighbours[idx]:
-                if self.seats[neighbour] == "#":
-                    return curr
-            return "#"
-        if curr == "#":
-            count = 0
-            for neighbour in self.neighbours[idx]:
-                if self.seats[neighbour] == "#":
-                    count += 1
-                    if count == self.THRESHOLD:
-                        return "L"
-        return curr
-
     def update(self):
-        updated = [self.nextgen(idx) for idx in range(len(self.seats))]
-        stable = updated == self.seats
-        self.seats = updated
-        return stable
+        prev = self.seats.copy()
+        changed = False
+
+        for idx, seat in enumerate(prev):
+            if seat == "L":
+                for n in self.neighbours[idx]:
+                    if prev[n] == "#":
+                        break
+                else:
+                    self.seats[idx] = "#"
+                    changed = True
+            elif seat == "#":
+                count = 0
+                for n in self.neighbours[idx]:
+                    if prev[n] == "#":
+                        count += 1
+                        if count == self.THRESHOLD:
+                            self.seats[idx] = "L"
+                            changed = True
+                            break
+        return not changed
 
     def occupied(self):
         return sum(1 for seat in self.seats if seat == "#")
-
-    def dump(self):
-        for row in self.seats:
-            print(row)
 
 
 class Grid1(Grid):
