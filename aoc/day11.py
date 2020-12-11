@@ -3,37 +3,66 @@ from . import util
 
 class Grid:
     def __init__(self, lines):
-        self.lines = lines
-        self.rows = len(lines)
-        self.cols = len(lines[0])
+        self.seats = lines
+        self.numrows = len(lines)
+        self.numcols = len(lines[0])
 
-    def neighbours(self, row, col):
-        for r in range(max(0, row - 1), min(self.rows, row + 2)):
-            for c in range(max(0, col - 1), min(self.cols, col + 2)):
-                if r != row or c != col:
-                    yield self.lines[r][c]
+        self.neighbours = [
+            [self.precompute_neighbours(row, col) for col in range(self.numcols)]
+            for row in range(self.numrows)
+        ]
+
+    NEIGHBOURS = [
+        (-1, -1),
+        (-1, +0),
+        (-1, +1),
+        (+0, -1),
+        (+0, +1),
+        (+1, -1),
+        (+1, +0),
+        (+1, +1),
+    ]
+
+    def precompute_neighbours(self, row, col):
+        neighbours = []
+        for drow, dcol in self.NEIGHBOURS:
+            nrow, ncol = row + drow, col + dcol
+            if nrow >= 0 and nrow < self.numrows and ncol >= 0 and ncol < self.numcols:
+                neighbours.append((nrow, ncol))
+        return neighbours
 
     def nextgen(self, row, col):
-        curr = self.lines[row][col]
+        curr = self.seats[row][col]
         if curr == "L":
-            if not any(seat == "#" for seat in self.neighbours(row, col)):
-                return "#"
-        elif curr == "#":
-            if sum(1 for seat in self.neighbours(row, col) if seat == "#") > 3:
-                return "L"
+            for r, c in self.neighbours[row][col]:
+                if self.seats[r][c] == "#":
+                    return curr
+            return "#"
+        if curr == "#":
+            count = 0
+            for r, c in self.neighbours[row][col]:
+                if self.seats[r][c] == "#":
+                    count += 1
+                    if count == 4:
+                        return "L"
         return curr
 
     def update(self):
-        newlines = [
-            "".join(self.nextgen(row, col) for col in range(self.cols)) for row in range(self.rows)
+        newseats = [
+            "".join(self.nextgen(row, col) for col in range(self.numcols))
+            for row in range(self.numrows)
         ]
-        stable = (newlines == self.lines)
+        stable = newseats == self.seats
 
-        self.lines = newlines
+        self.seats = newseats
         return stable
 
     def occupied(self):
-        return sum(1 for line in self.lines for seat in line if seat == "#")
+        return sum(1 for row in self.seats for seat in row if seat == "#")
+
+    def dump(self):
+        for row in self.seats:
+            print(row)
 
 
 def run():
