@@ -17,39 +17,54 @@ class Grid:
     def __init__(self, lines):
         self.rowmax = len(lines)
         self.colmax = len(lines[0])
+
+        # This is the full contents of the waiting room.
         self.seats = [char for line in lines for char in line]
 
+        # This is the pre-computed set of neighbours for each seat
         self.neighbours = [
             self.precompute_neighbours(row, col)
             for row in range(self.rowmax)
             for col in range(self.colmax)
         ]
 
+        # This is the list of seats needing to be checked on the next iteration
+        self.check = {i for i, s in enumerate(self.seats) if s != "."}
+
     def precompute_neighbours(self, row, col):
         raise NotImplementedError
 
-    def update(self):
-        prev = self.seats.copy()
-        changed = False
+    def set_check(self, idx, idxs):
+        self.check.add(idx)
+        self.check.update(idxs)
 
-        for idx, seat in enumerate(prev):
+    def update(self):
+        prev_seats = self.seats.copy()
+        prev_check = self.check.copy()
+        print(len(prev_seats), len(prev_check))
+
+        self.check = set()
+        for idx in prev_check:
+            seat = prev_seats[idx]
+            neighbours = self.neighbours[idx]
+
             if seat == "L":
-                for n in self.neighbours[idx]:
-                    if prev[n] == "#":
+                for neighbour in neighbours:
+                    if prev_seats[neighbour] == "#":
                         break
                 else:
                     self.seats[idx] = "#"
-                    changed = True
+                    self.set_check(idx, neighbours)
             elif seat == "#":
                 count = 0
-                for n in self.neighbours[idx]:
-                    if prev[n] == "#":
+                for neighbour in neighbours:
+                    if prev_seats[neighbour] == "#":
                         count += 1
                         if count == self.THRESHOLD:
                             self.seats[idx] = "L"
-                            changed = True
+                            self.set_check(idx, neighbours)
                             break
-        return not changed
+        return not self.check
 
     def occupied(self):
         return sum(1 for seat in self.seats if seat == "#")
