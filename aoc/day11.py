@@ -41,7 +41,6 @@ class Grid:
     def update(self):
         prev_seats = self.seats.copy()
         prev_check = self.check.copy()
-        print(len(prev_seats), len(prev_check))
 
         self.check = set()
         for idx in prev_check:
