@@ -109,14 +109,16 @@ class Grid2(Grid):
 def run():
     inputlines = util.get_input_lines("11.txt")
 
-    grid1 = Grid1(inputlines)
+    grid = Grid1(inputlines)
     stable = False
     while not stable:
-        stable = grid1.update()
+        stable = grid.update()
+    count1 = grid.occupied()
 
-    grid2 = Grid2(inputlines)
+    grid = Grid2(inputlines)
     stable = False
     while not stable:
-        stable = grid2.update()
+        stable = grid.update()
+    count2 = grid.occupied()
 
-    return (grid1.occupied(), grid2.occupied())
+    return (count1, count2)
