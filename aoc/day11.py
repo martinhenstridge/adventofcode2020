@@ -73,6 +73,8 @@ class Grid1(Grid):
                 continue
             if ncol < 0 or ncol >= self.numcols:
                 continue
+            if self.seats[nrow][ncol] == ".":
+                continue
             neighbours.append((nrow, ncol))
         return neighbours
 
