@@ -34,10 +34,6 @@ class Grid:
     def precompute_neighbours(self, row, col):
         raise NotImplementedError
 
-    def set_check(self, idx, idxs):
-        self.check.add(idx)
-        self.check.update(idxs)
-
     def update(self):
         prev_seats = self.seats.copy()
         prev_check = self.check.copy()
@@ -53,7 +49,7 @@ class Grid:
                         break
                 else:
                     self.seats[idx] = "#"
-                    self.set_check(idx, neighbours)
+                    self.check.update(neighbours)
             elif seat == "#":
                 count = 0
                 for neighbour in neighbours:
@@ -61,7 +57,7 @@ class Grid:
                         count += 1
                         if count == self.THRESHOLD:
                             self.seats[idx] = "L"
-                            self.set_check(idx, neighbours)
+                            self.check.update(neighbours)
                             break
         return not self.check
 
