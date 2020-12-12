@@ -13,7 +13,7 @@ HEADING = {
     270: (-1, 0),
 }
 
-def update(position, heading, instruction):
+def update1(position, heading, instruction):
     key, val = instruction
     x, y = position
 
@@ -39,16 +39,26 @@ def update(position, heading, instruction):
     return (x, y), heading
 
 
+def update2(ship, waypoint, instruction):
+    return ship, waypoint
+
+
 def manhattan_distance(position):
     return abs(position[0]) + abs(position[1])
 
 
 def run():
     inputlines = util.get_input_lines("12.txt")
+    instructions = [i for i in get_instructions(inputlines)]
 
     position, heading = (0, 0), 90
-    for instruction in get_instructions(inputlines):
-        position, heading = update(position, heading, instruction)
-    dist = manhattan_distance(position)
+    for instruction in instructions:
+        position, heading = update1(position, heading, instruction)
+    dist1 = manhattan_distance(position)
 
-    return (dist,)
+    ship, waypoint = (0, 0), (10, 1)
+    for instruction in instructions:
+        ship, waypint = update2(ship, waypoint, instruction)
+    dist2 = manhattan_distance(ship)
+
+    return (dist1, dist2)
