@@ -40,7 +40,31 @@ def update1(position, heading, instruction):
 
 
 def update2(ship, waypoint, instruction):
-    return ship, waypoint
+    key, val = instruction
+    sx, sy = ship
+    wx, wy = waypoint
+
+    if key == "F":
+        sx += wx * val
+        sy += wy * val
+    elif key == "L":
+        for _ in range(val // 90):
+            wx, wy = -wy, wx
+    elif key == "R":
+        for _ in range(val // 90):
+            wx, wy = wy, -wx
+    elif key == "N":
+        wy += val
+    elif key == "S":
+        wy -= val
+    elif key == "E":
+        wx += val
+    elif key == "W":
+        wx -= val
+    else:
+        assert False
+
+    return (sx, sy), (wx, wy)
 
 
 def manhattan_distance(position):
@@ -58,7 +82,7 @@ def run():
 
     ship, waypoint = (0, 0), (10, 1)
     for instruction in instructions:
-        ship, waypint = update2(ship, waypoint, instruction)
+        ship, waypoint = update2(ship, waypoint, instruction)
     dist2 = manhattan_distance(ship)
 
     return (dist1, dist2)
