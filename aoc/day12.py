@@ -6,37 +6,32 @@ def get_instructions(lines):
         yield line[0], int(line[1:])
 
 
-HEADING = {
-    0: (0, +1),
-    90: (+1, 0),
-    180: (0, -1),
-    270: (-1, 0),
-}
-
-def update1(position, heading, instruction):
+def update1(ship, heading, instruction):
     key, val = instruction
-    x, y = position
+    sx, sy = ship
+    dx, dy = heading
 
     if key == "F":
-        dx, dy = HEADING[heading]
-        x += dx * val
-        y += dy * val
+        sx += dx * val
+        sy += dy * val
     elif key == "L":
-        heading = (heading - val) % 360
+        for _ in range(val // 90):
+            dx, dy = -dy, dx
     elif key == "R":
-        heading = (heading + val) % 360
+        for _ in range(val // 90):
+            dx, dy = dy, -dx
     elif key == "N":
-        y += val
+        sy += val
     elif key == "S":
-        y -= val
+        sy -= val
     elif key == "E":
-        x += val
+        sx += val
     elif key == "W":
-        x -= val
+        sx -= val
     else:
         assert False
 
-    return (x, y), heading
+    return (sx, sy), (dx, dy)
 
 
 def update2(ship, waypoint, instruction):
@@ -75,10 +70,10 @@ def run():
     inputlines = util.get_input_lines("12.txt")
     instructions = [i for i in get_instructions(inputlines)]
 
-    position, heading = (0, 0), 90
+    ship, heading = (0, 0), (1, 0)
     for instruction in instructions:
-        position, heading = update1(position, heading, instruction)
-    dist1 = manhattan_distance(position)
+        ship, heading = update1(ship, heading, instruction)
+    dist1 = manhattan_distance(ship)
 
     ship, waypoint = (0, 0), (10, 1)
     for instruction in instructions:
