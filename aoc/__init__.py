@@ -10,6 +10,7 @@ from . import (
     day09,
     day10,
     day11,
+    day12,
 )
 
 DAYS = {
@@ -24,4 +25,5 @@ DAYS = {
     "09": day09,
     "10": day10,
     "11": day11,
+    "12": day12,
 }
