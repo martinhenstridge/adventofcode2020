@@ -25,8 +25,15 @@ def find_first_bus(schedule, earliest):
 
 
 def find_first_timestamp(schedule, lowerbound):
+    # [439, 13, 17, 23, 41] are aligned at offset 17
     step = 91488917
     offset = 17
+
+    schedule.pop(13)
+    schedule.pop(17)
+    schedule.pop(23)
+    schedule.pop(41)
+    print(schedule)
 
     t = first_multiple_at_least(lowerbound, step)
     t -= offset
