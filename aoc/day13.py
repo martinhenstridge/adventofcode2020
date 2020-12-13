@@ -28,23 +28,23 @@ def find_first_timestamp(schedule):
     #
     # 7,13,x,x,59,x,31,19 => { 0:7, 1:13, 4:59, 6:31, 7:19 }
     #
-    # The 0:7 constraint is trivially satisfied by t = 0. Incrementing by 7
-    # yields an endless supply of further conforming values for subsequent use.
+    # The 0:7 constraint is trivially satisfied by t = 0. Further conforming
+    # values then occur at an interval of 7.
     #
     # The 1:13 constraint is satisfied by incrementing t by 7 until we encounter
     # a value such that t+1 is exactly divisible by 13, i.e. (t + 1) % 13 == 0.
-    # The first such value is 77. Further conforming values can then be found by
-    # incrementing t by 7 * 13 == 91.
+    # The first such value is 77. Further conforming values can then be found at
+    # an interval of 7 * 13 == 91.
     #
     # Note: all bus times are prime, so we need not consider intermediate values
     # (there are no common divisors).
     #
     # The 4:59 constraint is satisfied by incrementing t (== 77) by 91 until we
     # encounter a value such that (t + 4) % 59 == 0. The first such value is
-    # 350. Further values are available at increments of 7 * 13 * 59 == 5369.
+    # 350. Further values are available at an interval of 7 * 13 * 59 == 5369.
     #
     # Similarly, applying the 6:31 constraint yields a timestamp of 70147, with
-    # further values at increments of 7 * 13 * 59 * 31 == 166439.
+    # further values at an interval of 7 * 13 * 59 * 31 == 166439.
     #
     # Finally, applying the 7:19 constraint yields the solution: 1068781.
     timestamp = 0
