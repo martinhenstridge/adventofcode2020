@@ -1,20 +1,23 @@
+import math
 from . import util
 
 
 def get_bus_data(lines):
-    return int(lines[0]), [int(bus) for bus in lines[1].split(",") if bus != "x"]
+    timestamp = int(lines[0])
+    buses = {}
+    for idx, bus in enumerate(lines[1].split(",")):
+        if bus != "x":
+            buses[int(bus)] = idx
+    return timestamp, buses
 
 
 def find_earliest_after(timestamp, buses):
-    earliest = {}
+    best = 0, math.inf
     for bus in buses:
-        t = 0
-        while t < timestamp:
-            t += bus
-        earliest[bus] = t
-
-    ranked = sorted(earliest.items(), key=lambda x: x[1])
-    return ranked[0]
+        earliest = bus * math.ceil(timestamp / bus)
+        if earliest < best[1]:
+            best = bus, earliest
+    return best
 
 
 def run():
