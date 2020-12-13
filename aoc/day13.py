@@ -3,27 +3,48 @@ from . import util
 
 
 def get_bus_data(lines):
-    timestamp = int(lines[0])
-    buses = {}
-    for idx, bus in enumerate(lines[1].split(",")):
-        if bus != "x":
-            buses[int(bus)] = idx
-    return timestamp, buses
+    earliest = int(lines[0])
+    schedule = {}
+    for idx, time in enumerate(lines[1].split(",")):
+        if time != "x":
+            schedule[int(time)] = idx
+    return earliest, schedule
 
 
-def find_earliest_after(timestamp, buses):
-    best = 0, math.inf
-    for bus in buses:
-        earliest = bus * math.ceil(timestamp / bus)
-        if earliest < best[1]:
-            best = bus, earliest
-    return best
+def first_multiple_at_least(minimum, factor):
+    return factor * math.ceil(minimum / factor)
+
+
+def find_first_bus(schedule, earliest):
+    result = 0, math.inf
+    for bus in schedule:
+        departs = first_multiple_at_least(earliest, bus)
+        if departs < result[1]:
+            result = bus, departs
+    return result
+
+
+def find_first_timestamp(schedule, lowerbound):
+    step = 91488917
+    offset = 17
+
+    t = first_multiple_at_least(lowerbound, step)
+    t -= offset
+
+    while True:
+        t += step
+        for bus, offset in schedule.items():
+            if (t + offset) % bus != 0:
+                break
+        else:
+            return t
 
 
 def run():
     inputlines = util.get_input_lines("13.txt")
-    timestamp, buses = get_bus_data(inputlines)
+    earliest, schedule = get_bus_data(inputlines)
 
-    bus, departs = find_earliest_after(timestamp, buses)
+    bus, departs = find_first_bus(schedule, earliest)
+    timestamp = find_first_timestamp(schedule, 100000000000000)
 
-    return (bus * (departs - timestamp),)
+    return (bus * (departs - earliest), timestamp)
