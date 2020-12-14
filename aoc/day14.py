@@ -12,43 +12,40 @@ class Instruction(Enum):
     MEM = 1
 
 
-def parse_mask(_, val):
+def parse_mask(val):
     # mask = X1011100000X111X01001000001110X00000
-    mask = {0: 0xFFFFFFFFF, 1: 0}
+    mask = {0: 0, 1: 0}
     for idx, bit in enumerate(reversed(val)):
         if bit == "X":
             continue
         elif bit == "0":
-            mask[0] &= ~(1 << idx)
+            mask[0] |= 1 << idx
         elif bit == "1":
             mask[1] |= 1 << idx
     return mask
-
-
-def parse_mem(key, val):
-    # mem[4616] = 8311689
-    return int(key[4:-1]), int(val)
 
 
 def get_instructions(lines):
     for line in lines:
         key, val = line.split(" = ")
         if key == "mask":
-            yield Instruction.MASK, parse_mask(key, val)
+            yield Instruction.MASK, val
         else:
-            yield Instruction.MEM, parse_mem(key, val)
+            addr = int(key[4:-1])
+            data = int(val)
+            yield Instruction.MEM, (addr, data)
 
 
-def execute(instructions):
-    mask = {0: 0, 1: 0}
+def execute1(instructions):
+    mask = {}
     mem = collections.defaultdict(int)
 
     for kind, data in instructions:
         if kind is Instruction.MASK:
-            mask = data
+            mask = parse_mask(data)
         elif kind is Instruction.MEM:
-            idx, val = data
-            mem[idx] = val & mask[0] | mask[1]
+            addr, val = data
+            mem[addr] = val & ~mask[0] | mask[1]
         else:
             assert False
 
@@ -59,7 +56,7 @@ def run():
     inputlines = util.get_input_lines("14.txt")
     instructions = [i for i in get_instructions(inputlines)]
 
-    mem = execute(instructions)
-    total = sum(mem.values())
+    mem1 = execute1(instructions)
+    total1 = sum(mem1.values())
 
-    return (total,)
+    return (total1,)
