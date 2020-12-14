@@ -24,10 +24,11 @@ def mask_interpreter_v1(mask):
     for idx, bit in enumerate(reversed(mask)):
         if bit != "X":
             bitmask[bit] |= 1 << idx
+    bitmask["0"] = ~bitmask["0"]
 
     def interpreter(mem, data):
         addr, val = data
-        mem[addr] = val & ~bitmask["0"] | bitmask["1"]
+        mem[addr] = val & bitmask["0"] | bitmask["1"]
 
     return interpreter
 
@@ -39,13 +40,13 @@ def mask_interpreter_v2(mask):
         if bit != "0":
             bitmask |= 1 << idx
         if bit == "X":
-            xs.append(1 << idx)
+            xs.append(~(1 << idx))
 
     def interpreter(mem, data):
         addr, val = data
         addrs = [addr | bitmask]
         for x in xs:
-            complements = [a & ~x for a in addrs]
+            complements = [a & x for a in addrs]
             addrs.extend(complements)
         for a in addrs:
             mem[a] = val
