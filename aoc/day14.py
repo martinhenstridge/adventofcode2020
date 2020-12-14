@@ -3,10 +3,6 @@ from enum import Enum
 from . import util
 
 
-# def print_bits(bits):
-#    print(f"{bits:0>36b}")
-
-
 class Instruction(Enum):
     MASK = 0
     MEM = 1
@@ -23,33 +19,49 @@ def get_instructions(lines):
             yield Instruction.MEM, (addr, data)
 
 
-def mask_interpreter1(mask):
-    bitmask0 = 0
-    bitmask1 = 0
+def mask_interpreter_v1(mask):
+    bitmask = {"0": 0, "1": 0}
     for idx, bit in enumerate(reversed(mask)):
-        if bit == "X":
-            continue
-        elif bit == "0":
-            bitmask0 |= 1 << idx
-        elif bit == "1":
-            bitmask1 |= 1 << idx
-    bitmask0 = ~bitmask0
+        if bit != "X":
+            bitmask[bit] |= 1 << idx
 
-    def execfn(mem, data):
+    def interpreter(mem, data):
         addr, val = data
-        mem[addr] = val & bitmask0 | bitmask1
-    return execfn
+        mem[addr] = val & ~bitmask["0"] | bitmask["1"]
+
+    return interpreter
+
+
+def mask_interpreter_v2(mask):
+    bitmask = 0
+    xs = []
+    for idx, bit in enumerate(reversed(mask)):
+        if bit != "0":
+            bitmask |= 1 << idx
+        if bit == "X":
+            xs.append(1 << idx)
+
+    def interpreter(mem, data):
+        addr, val = data
+        addrs = [addr | bitmask]
+        for x in xs:
+            complements = [a & ~x for a in addrs]
+            addrs.extend(complements)
+        for a in addrs:
+            mem[a] = val
+
+    return interpreter
 
 
 def execute(instructions, mask_interpreter):
     mem = collections.defaultdict(int)
-    execfn = None
+    interpreter = lambda *_: None
 
     for kind, data in instructions:
         if kind is Instruction.MASK:
-            execfn = mask_interpreter(data)
+            interpreter = mask_interpreter(data)
         elif kind is Instruction.MEM:
-            execfn(mem, data)
+            interpreter(mem, data)
         else:
             assert False
 
@@ -60,7 +72,7 @@ def run():
     inputlines = util.get_input_lines("14.txt")
     instructions = [i for i in get_instructions(inputlines)]
 
-    mem1 = execute(instructions, mask_interpreter1)
-    total1 = sum(mem1.values())
+    mem1 = execute(instructions, mask_interpreter_v1)
+    mem2 = execute(instructions, mask_interpreter_v2)
 
-    return (total1,)
+    return (sum(mem1.values()), sum(mem2.values()))
