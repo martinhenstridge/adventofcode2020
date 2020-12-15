@@ -6,18 +6,19 @@ def get_starting_numbers(lines):
 
 
 def play(starting, count):
-    turns = [None] * count
+    history = {}
 
-    for idx, num in enumerate(starting):
-        turns[num] = (idx, idx)
+    for idx, num in enumerate(starting[:-1]):
+        history[num] = idx
+    prevnum = starting[-1]
+    previdx = len(starting) - 1
 
-    num = starting[-1]
     for idx in range(len(starting), count):
-        num = turns[num][0] - turns[num][1]
-        if turns[num] is None:
-            turns[num] = (idx, idx)
-        else:
-            turns[num] = (idx, turns[num][0])
+        num = previdx - history[prevnum] if prevnum in history else 0
+        history[prevnum] = previdx
+        prevnum = num
+        previdx = idx
+
     return num
 
 
