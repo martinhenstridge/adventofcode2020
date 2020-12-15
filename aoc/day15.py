@@ -6,9 +6,9 @@ def get_starting_numbers(lines):
 
 
 def play(starting, count):
-    # Using a fixed length array (i.e. [None] * count) instead of a dict here is
-    # around twice as fast, but uses a *lot* more memory, especially for part 2.
-    history = {}
+    # Using a dict here uses a *lot* less memory (especially during part 2), but
+    # takes around twice as long to run.
+    history = [None] * count
 
     # Bootstrap the game using the starting numbers. Avoid inserting the last
     # number into the history until we've used its presence (or otherwise) there
@@ -19,7 +19,7 @@ def play(starting, count):
     previdx = len(starting) - 1
 
     for idx in range(len(starting), count):
-        num = previdx - history[prevnum] if prevnum in history else 0
+        num = 0 if history[prevnum] is None else previdx - history[prevnum]
         history[prevnum] = previdx
         prevnum = num
         previdx = idx
