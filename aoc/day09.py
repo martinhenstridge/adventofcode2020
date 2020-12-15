@@ -37,4 +37,4 @@ def run():
     invalid = find_invalid(numbers, 25)
     sequence = find_sequence(numbers, invalid)
 
-    return (invalid, min(sequence) + max(sequence))
+    return invalid, min(sequence) + max(sequence)

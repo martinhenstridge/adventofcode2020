@@ -53,4 +53,4 @@ def run():
         if term:
             break
 
-    return (acc1, acc2)
+    return acc1, acc2

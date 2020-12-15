@@ -80,4 +80,4 @@ def run():
         ship, waypoint = update2(ship, waypoint, instruction)
     dist2 = manhattan_distance(ship)
 
-    return (dist1, dist2)
+    return dist1, dist2

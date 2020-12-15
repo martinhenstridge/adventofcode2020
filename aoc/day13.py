@@ -77,4 +77,4 @@ def run():
     bus, departs = find_first_bus(schedule, earliest)
     timestamp = find_first_timestamp(schedule)
 
-    return (bus * (departs - earliest), timestamp)
+    return bus * (departs - earliest), timestamp

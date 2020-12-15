@@ -76,4 +76,4 @@ def run():
     mem1 = execute(instructions, mask_interpreter_v1)
     mem2 = execute(instructions, mask_interpreter_v2)
 
-    return (sum(mem1.values()), sum(mem2.values()))
+    return sum(mem1.values()), sum(mem2.values())

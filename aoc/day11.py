@@ -121,4 +121,4 @@ def run():
         stable = grid.update()
     count2 = grid.occupied()
 
-    return (count1, count2)
+    return count1, count2

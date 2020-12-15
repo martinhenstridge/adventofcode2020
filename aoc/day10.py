@@ -86,4 +86,4 @@ def run():
     # the number of permutations for each such sub-section.
     perms = util.product(count_permutations(s) for s in find_subsections(chain))
 
-    return (diffs[1] * diffs[3], perms)
+    return diffs[1] * diffs[3], perms
