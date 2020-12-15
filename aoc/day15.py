@@ -6,7 +6,7 @@ def get_starting_numbers(lines):
 
 
 def play(starting, count):
-    turns = [-1] * count
+    turns = [None] * count
 
     for idx, num in enumerate(starting):
         turns[num] = (idx, idx)
@@ -14,10 +14,10 @@ def play(starting, count):
     num = starting[-1]
     for idx in range(len(starting), count):
         num = turns[num][0] - turns[num][1]
-        if turns[num] == -1:
-            turns[num] = (idx, turns[num][0])
-        else:
+        if turns[num] is None:
             turns[num] = (idx, idx)
+        else:
+            turns[num] = (idx, turns[num][0])
     return num
 
 
