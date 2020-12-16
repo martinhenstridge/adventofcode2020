@@ -2,7 +2,6 @@ from . import util
 
 
 class WaitingRoom:
-
     def __init__(self, lines, threshold, find_neighbours):
         self.seats = [char for line in lines for char in line]
         self.rowmax = len(lines)
@@ -12,7 +11,8 @@ class WaitingRoom:
         # Pre-compute the set of neighbours for each seat.
         self.neighbours = [
             find_neighbours(self.seats, self.rowmax, self.colmax, row, col)
-            if lines[row][col] != "." else []
+            if lines[row][col] != "."
+            else []
             for row in range(self.rowmax)
             for col in range(self.colmax)
         ]
