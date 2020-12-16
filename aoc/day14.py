@@ -38,14 +38,18 @@ def mask_interpreter_v2(mask):
     xs = []
     for idx, bit in enumerate(reversed(mask)):
         if bit != "0":
+            # Set bit to 1 for both 1 and X cases.
             bitmask |= 1 << idx
         if bit == "X":
+            # Record that a 0 variant is required for each X case.
             xs.append(~(1 << idx))
 
     def interpreter(mem, data):
         addr, val = data
         addrs = [addr | bitmask]
         for x in xs:
+            # The 1 variant of the "floating" X behaviour is already accounted
+            # for, calculate the 0 variant for each X in the mask here.
             complements = [a & x for a in addrs]
             addrs.extend(complements)
         for a in addrs:
