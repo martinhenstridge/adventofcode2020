@@ -1,124 +1,105 @@
 from . import util
 
 
-class Grid:
-    THRESHOLD = 0
-    DIRECTIONS = [
-        (-1, -1),
-        (-1, +0),
-        (-1, +1),
-        (+0, -1),
-        (+0, +1),
-        (+1, -1),
-        (+1, +0),
-        (+1, +1),
-    ]
+class WaitingRoom:
 
-    def __init__(self, lines):
+    def __init__(self, lines, threshold, find_neighbours):
+        self.seats = [char for line in lines for char in line]
         self.rowmax = len(lines)
         self.colmax = len(lines[0])
+        self.threshold = threshold
 
-        # This is the full contents of the waiting room.
-        self.seats = [char for line in lines for char in line]
-
-        # This is the pre-computed set of neighbours for each seat
+        # Pre-compute the set of neighbours for each seat.
         self.neighbours = [
-            self.precompute_neighbours(row, col) if lines[row][col] != "." else []
+            find_neighbours(self.seats, self.rowmax, self.colmax, row, col)
+            if lines[row][col] != "." else []
             for row in range(self.rowmax)
             for col in range(self.colmax)
         ]
 
-        # This is the list of seats needing to be checked on the next iteration
-        self.check = {i for i, s in enumerate(self.seats) if s != "."}
-
-    def precompute_neighbours(self, row, col):
-        raise NotImplementedError
-
     def update(self):
-        prev_seats = self.seats.copy()
-        prev_check = self.check.copy()
+        # The neighbour relationship is reciprocal, so any occupied seat counts
+        # once for each of its neighbours. Pre-counting the number of occupied
+        # neighbours is much faster than doing it on the fly.
+        counts = [0] * len(self.seats)
+        for idx, seat in enumerate(self.seats):
+            if seat == "#":
+                for neighbour in self.neighbours[idx]:
+                    counts[neighbour] += 1
 
-        self.check = set()
-        for idx in prev_check:
-            seat = prev_seats[idx]
-            neighbours = self.neighbours[idx]
-
+        changed = False
+        for idx, seat in enumerate(self.seats):
             if seat == "L":
-                for neighbour in neighbours:
-                    if prev_seats[neighbour] == "#":
-                        break
-                else:
+                if counts[idx] == 0:
                     self.seats[idx] = "#"
-                    self.check.update(neighbours)
+                    changed = True
             elif seat == "#":
-                count = 0
-                for neighbour in neighbours:
-                    if prev_seats[neighbour] == "#":
-                        count += 1
-                        if count == self.THRESHOLD:
-                            self.seats[idx] = "L"
-                            self.check.update(neighbours)
-                            break
-        return not self.check
+                if counts[idx] >= self.threshold:
+                    self.seats[idx] = "L"
+                    changed = True
+        return changed
 
-    def occupied(self):
+    def run(self):
+        unstable = True
+        while unstable:
+            unstable = self.update()
         return sum(1 for seat in self.seats if seat == "#")
 
 
-class Grid1(Grid):
-    THRESHOLD = 4
-
-    def precompute_neighbours(self, row, col):
-        neighbours = []
-        for drow, dcol in self.DIRECTIONS:
-            nrow = row + drow
-            ncol = col + dcol
-            nidx = ncol + (nrow * self.colmax)
-            if nrow < 0 or nrow >= self.rowmax:
-                continue
-            if ncol < 0 or ncol >= self.colmax:
-                continue
-            if self.seats[nidx] == ".":
-                continue
-            neighbours.append(nidx)
-        return neighbours
+DIRECTIONS = [
+    (-1, -1),
+    (-1, +0),
+    (-1, +1),
+    (+0, -1),
+    (+0, +1),
+    (+1, -1),
+    (+1, +0),
+    (+1, +1),
+]
 
 
-class Grid2(Grid):
-    THRESHOLD = 5
+def find_neighbours1(seats, rowmax, colmax, row, col):
+    neighbours = []
+    for drow, dcol in DIRECTIONS:
+        nrow = row + drow
+        ncol = col + dcol
+        nidx = ncol + (nrow * colmax)
+        if nrow < 0 or nrow >= rowmax:
+            continue
+        if ncol < 0 or ncol >= colmax:
+            continue
+        if seats[nidx] == ".":
+            continue
+        neighbours.append(nidx)
+    return neighbours
 
-    def precompute_neighbours(self, row, col):
-        neighbours = []
-        for drow, dcol in self.DIRECTIONS:
-            nrow = row
-            ncol = col
-            while True:
-                nrow += drow
-                ncol += dcol
-                nidx = ncol + (nrow * self.colmax)
-                if nrow < 0 or nrow >= self.rowmax:
-                    break
-                if ncol < 0 or ncol >= self.colmax:
-                    break
-                if self.seats[nidx] == "L":
-                    neighbours.append(nidx)
-                    break
-        return neighbours
+
+def find_neighbours2(seats, rowmax, colmax, row, col):
+    neighbours = []
+    for drow, dcol in DIRECTIONS:
+        nrow = row
+        ncol = col
+        while True:
+            nrow += drow
+            ncol += dcol
+            nidx = ncol + (nrow * colmax)
+            if nrow < 0 or nrow >= rowmax:
+                break
+            if ncol < 0 or ncol >= colmax:
+                break
+            if seats[nidx] == "L":
+                neighbours.append(nidx)
+                break
+    return neighbours
 
 
 def run():
     inputlines = util.get_input_lines("11.txt")
 
-    grid = Grid1(inputlines)
-    stable = False
-    while not stable:
-        stable = grid.update()
-    count1 = grid.occupied()
+    wr1 = WaitingRoom(inputlines, 4, find_neighbours1)
+    count1 = wr1.run()
 
-    grid = Grid2(inputlines)
-    stable = False
-    while not stable:
-        stable = grid.update()
-    count2 = grid.occupied()
+    wr2 = WaitingRoom(inputlines, 5, find_neighbours2)
+    count2 = wr2.run()
 
     return count1, count2
