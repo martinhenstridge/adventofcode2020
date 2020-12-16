@@ -55,44 +55,59 @@ def is_valid_for_any(value, constraints):
     return any(is_valid_for_constraint(value, c) for c in constraints.values())
 
 
-def ticket_error(ticket, constraints):
-    total = 0
-    for value in ticket:
-        if not is_valid_for_any(value, constraints):
-            total += value
-    return total
+def invalid_values(ticket, constraints):
+    return [v for v in ticket if not is_valid_for_any(v, constraints)]
 
 
 def assign_fields(constraints, tickets):
-    fields = {f: set(range(len(constraints))) for f in constraints}
+    # Initially, every field could appear at any index - nothing is known.
+    unknowns = {f: set(range(len(constraints))) for f in constraints}
+    knowns = {}
+
+    # Run through all of the valid tickets. For each field, discount any indices
+    # with values which do not conform to the constraints for that field.
     for ticket in tickets:
         for idx, val in enumerate(ticket):
             for field, constraint in constraints.items():
                 if not is_valid_for_constraint(val, constraint):
-                    fields[field].discard(idx)
+                    unknowns[field].discard(idx)
 
-    while not all(isinstance(i, int) for i in fields.values()):
-        for field, idxs in fields.items():
-            if isinstance(idxs, set) and len(idxs) == 1:
-                known = idxs.pop()
-                fields[field] = known
-                for idxs in fields.values():
-                    if isinstance(idxs, set):
-                        idxs.discard(known)
-                break
+    # When a field is left with only one viable index, move it from the set of
+    # "unknowns" into the set of "knowns". We can then also discaount that index
+    # as being a possibility for any other field, thus yielding further "known"
+    # fields.
+    while unknowns:
+        for field, options in unknowns.items():
+            # The current field remains ambiguous, skip to the next one.
+            if len(options) > 1:
+                continue
 
-    return fields
+            index = options.pop()
+            knowns[field] = index
+            del unknowns[field]
+            for options in unknowns.values():
+                options.discard(index)
+
+            # Break rather than continuing to loop since we've changed the size
+            # of the dict being iterated over.
+            break
+
+    return knowns
 
 
 def run():
     inputlines = util.get_input_lines("16.txt")
     constraints, your_ticket, nearby_tickets = parse_info(inputlines)
 
-    error_rate = sum(ticket_error(t, constraints) for t in nearby_tickets)
+    error_rate = 0
+    valid_tickets = []
+    for ticket in nearby_tickets:
+        ivs = invalid_values(ticket, constraints)
+        if ivs:
+            error_rate += sum(ivs)
+        else:
+            valid_tickets.append(ticket)
 
-    valid_tickets = [
-        t for t in nearby_tickets if all(is_valid_for_any(v, constraints) for v in t)
-    ]
     fields = assign_fields(constraints, valid_tickets)
     result = util.product(
         your_ticket[i] for f, i in fields.items() if f.startswith("departure")
