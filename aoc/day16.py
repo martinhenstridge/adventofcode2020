@@ -45,42 +45,57 @@ def parse_info(lines):
     return constraints, your_ticket, nearby_tickets
 
 
+def is_valid_for_constraint(value, constraint):
+    r1, r2 = constraint
+    return r1[0] <= value <= r1[1] or r2[0] <= value <= r2[1]
+
+
 @util.memoize
-def is_value_valid(value, constraints):
-    return any(
-        r1[0] <= value <= r1[1] or r2[0] <= value <= r2[1]
-        for r1, r2 in constraints.values()
-    )
+def is_valid_for_any(value, constraints):
+    return any(is_valid_for_constraint(value, c) for c in constraints.values())
 
 
-def ticket_error_rate(ticket, constraints):
+def ticket_error(ticket, constraints):
     total = 0
     for value in ticket:
-        if not is_value_valid(value, constraints):
+        if not is_valid_for_any(value, constraints):
             total += value
     return total
 
 
-EXAMPLE = [
-    "class: 1-3 or 5-7",
-    "row: 6-11 or 33-44",
-    "seat: 13-40 or 45-50",
-    "",
-    "your ticket:",
-    "7,1,14",
-    "",
-    "nearby tickets:",
-    "7,3,47",
-    "40,4,50",
-    "55,2,20",
-    "38,6,12",
-]
+def assign_fields(constraints, tickets):
+    fields = {f: set(range(len(constraints))) for f in constraints}
+    for ticket in tickets:
+        for idx, val in enumerate(ticket):
+            for field, constraint in constraints.items():
+                if not is_valid_for_constraint(val, constraint):
+                    fields[field].discard(idx)
+
+    while not all(isinstance(i, int) for i in fields.values()):
+        for field, idxs in fields.items():
+            if isinstance(idxs, set) and len(idxs) == 1:
+                known = idxs.pop()
+                fields[field] = known
+                for idxs in fields.values():
+                    if isinstance(idxs, set):
+                        idxs.discard(known)
+                break
+
+    return fields
 
 
 def run():
     inputlines = util.get_input_lines("16.txt")
     constraints, your_ticket, nearby_tickets = parse_info(inputlines)
 
-    error_rate = sum(ticket_error_rate(t, constraints) for t in nearby_tickets)
+    error_rate = sum(ticket_error(t, constraints) for t in nearby_tickets)
 
-    return (error_rate,)
+    valid_tickets = [
+        t for t in nearby_tickets if all(is_valid_for_any(v, constraints) for v in t)
+    ]
+    fields = assign_fields(constraints, valid_tickets)
+    result = util.product(
+        your_ticket[i] for f, i in fields.items() if f.startswith("departure")
+    )
+
+    return error_rate, result
