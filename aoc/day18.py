@@ -27,15 +27,15 @@ def parse(string):
 
 
 def evaluate1(expr):
-    acc, expr = expr[0], expr[1:]
-    if isinstance(acc, list):
-        acc = evaluate1(acc)
+    if isinstance(expr, int):
+        return expr
+
+    head, expr = expr[0], expr[1:]
+    acc = evaluate1(head)
 
     while expr:
-        op, val, expr = expr[0], expr[1], expr[2:]
-        if isinstance(val, list):
-            val = evaluate1(val)
-        acc = op(acc, val)
+        func, term, expr = expr[0], expr[1], expr[2:]
+        acc = func(evaluate1(term), acc)
 
     return acc
 
@@ -47,10 +47,10 @@ def evaluate2(expr):
     while operator.add in expr:
         for idx, term in enumerate(expr):
             if term is operator.add:
-                lvals = expr[:idx]
-                rvals = expr[idx + 1 :]
-                added = evaluate2(lvals.pop(-1)) + evaluate2(rvals.pop(0))
-                expr = lvals + [added] + rvals
+                lval = expr[idx - 1]
+                rval = expr[idx + 1]
+                added = evaluate2(lval) + evaluate2(rval)
+                expr[idx - 1 : idx + 2] = [added]
                 break
 
     return util.product(evaluate2(term) for term in expr if term is not operator.mul)
