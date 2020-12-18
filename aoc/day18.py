@@ -29,17 +29,15 @@ def parse(string):
     return expr, idx
 
 
-def evaluate(expr, level=0):
-    head, expr = expr[0], expr[1:]
-    if isinstance(head, list):
-        acc = evaluate(head, level + 1)
-    else:
-        acc = head
+def evaluate(expr):
+    acc, expr = expr[0], expr[1:]
+    if isinstance(acc, list):
+        acc = evaluate(acc)
 
     while expr:
         op, val, expr = expr[0], expr[1], expr[2:]
         if isinstance(val, list):
-            val = evaluate(val, level + 1)
+            val = evaluate(val)
         acc = op(acc, val)
 
     return acc
