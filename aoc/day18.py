@@ -30,6 +30,8 @@ def evaluate1(expr):
     if isinstance(expr, int):
         return expr
 
+    # Pop off the first value, the rest of the terms are then (operator, value)
+    # pairs.
     head, expr = expr[0], expr[1:]
     acc = evaluate1(head)
 
@@ -44,14 +46,16 @@ def evaluate2(expr):
     if isinstance(expr, int):
         return expr
 
-    while operator.add in expr:
-        for idx, term in enumerate(expr):
-            if term is operator.add:
-                lval = expr[idx - 1]
-                rval = expr[idx + 1]
-                added = evaluate2(lval) + evaluate2(rval)
-                expr[idx - 1 : idx + 2] = [added]
-                break
+    for idx, term in enumerate(expr):
+        if term is operator.add:
+            # Replace [x, +, y] with [*, *, x+y]. The last index in this slice
+            # *may* be required as part of a further addition, hence the result
+            # of the addition is put there. Fill the remaining indices to avoid
+            # resizing the list, use operator.mul since that is already being
+            # filtered out of the final product calculation
+            expr[idx + 1] = evaluate2(expr[idx - 1]) + evaluate2(expr[idx + 1])
+            expr[idx - 1] = operator.mul
+            expr[idx] = operator.mul
 
     return util.product(evaluate2(term) for term in expr if term is not operator.mul)
 
