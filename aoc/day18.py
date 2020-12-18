@@ -26,24 +26,41 @@ def parse(string):
     return expr
 
 
-def evaluate(expr):
+def evaluate1(expr):
     acc, expr = expr[0], expr[1:]
     if isinstance(acc, list):
-        acc = evaluate(acc)
+        acc = evaluate1(acc)
 
     while expr:
         op, val, expr = expr[0], expr[1], expr[2:]
         if isinstance(val, list):
-            val = evaluate(val)
+            val = evaluate1(val)
         acc = op(acc, val)
 
     return acc
+
+
+def evaluate2(expr):
+    if isinstance(expr, int):
+        return expr
+
+    while operator.add in expr:
+        for idx, term in enumerate(expr):
+            if term is operator.add:
+                lvals = expr[:idx]
+                rvals = expr[idx + 1 :]
+                added = evaluate2(lvals.pop(-1)) + evaluate2(rvals.pop(0))
+                expr = lvals + [added] + rvals
+                break
+
+    return util.product(evaluate2(term) for term in expr if term is not operator.mul)
 
 
 def run():
     inputlines = util.get_input_lines("18.txt")
     expressions = get_expressions(inputlines)
 
-    total = sum(evaluate(e) for e in expressions)
+    total1 = sum(evaluate1(e) for e in expressions)
+    total2 = sum(evaluate2(e) for e in expressions)
 
-    return (total,)
+    return total1, total2
