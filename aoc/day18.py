@@ -48,15 +48,17 @@ def evaluate2(expr):
 
     for idx, term in enumerate(expr):
         if term is operator.add:
-            # Replace [x, +, y] with [*, *, x+y]. The last index in this slice
-            # *may* be required as part of a further addition, hence the result
-            # of the addition is put there. Fill the remaining indices to avoid
+            # Replace [a, +, b] with [*, *, a + b]. The last index in this slice
+            # may be read as part of a subsequent addition, hence the result of
+            # the addition is stored there. Fill the remaining indices to avoid
             # resizing the list, use operator.mul since that is already being
-            # filtered out of the final product calculation
+            # filtered out of the final product calculation.
             expr[idx + 1] = evaluate2(expr[idx - 1]) + evaluate2(expr[idx + 1])
             expr[idx - 1] = operator.mul
             expr[idx] = operator.mul
 
+    # This expression contains no further additions, calculate the product of
+    # everything that's left.
     return util.product(evaluate2(term) for term in expr if term is not operator.mul)
 
 
