@@ -32,10 +32,9 @@ def run():
         resolved = True
         for idx, token in enumerate(rule0):
             if token in rules:
-                if "|" in rules[token]:
-                    rule = ["("] + rules[token] + [")"]
-                else:
-                    rule = rules[token]
+                rule = rules[token]
+                if "|" in rule:
+                    rule = ["(?:"] + rule + [")"]
                 rule0[idx:idx+1] = rule
                 resolved = False
                 break
