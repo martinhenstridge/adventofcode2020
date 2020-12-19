@@ -14,7 +14,10 @@ def get_rules_messages(lines):
 
         if rule_section:
             rnum, rule = line.split(": ", maxsplit=1)
-            rules[rnum] = [token.replace("\"", "") for token in rule.split()]
+            tokens = [token.replace("\"", "") for token in rule.split()]
+            if "|" in tokens:
+                tokens = ["(?:"] + tokens + [")"]
+            rules[rnum] = tokens
         else:
             messages.append(line)
 
@@ -29,10 +32,7 @@ def construct_regex(rules):
         resolved = True
         for idx, token in enumerate(rule0):
             if token in rules:
-                rule = rules[token]
-                if "|" in rule:
-                    rule = ["(?:"] + rule + [")"]
-                rule0[idx:idx+1] = rule
+                rule0[idx:idx+1] = rules[token]
                 resolved = False
                 break
 
@@ -46,4 +46,19 @@ def run():
     regex1 = construct_regex(rules)
     count1 = sum(1 for m in messages if re.fullmatch(regex1, m))
 
-    return (count1,)
+    # 8: 42 | 42 8
+    rules["8"] = ["(?:", "42", ")+"]
+
+    # 11: 42 31 | 42 11 31
+    rules["11"] = [
+        "(?:",
+        "(?:", "(?:", "42", "){1}", "(?:", "31", "){1}", ")", "|",
+        "(?:", "(?:", "42", "){2}", "(?:", "31", "){2}", ")", "|",
+        "(?:", "(?:", "42", "){3}", "(?:", "31", "){3}", ")", "|",
+        "(?:", "(?:", "42", "){4}", "(?:", "31", "){4}", ")", ")",
+    ]
+
+    regex2 = construct_regex(rules)
+    count2 = sum(1 for m in messages if re.fullmatch(regex2, m))
+
+    return count1, count2
