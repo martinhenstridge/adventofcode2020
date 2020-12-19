@@ -21,13 +21,10 @@ def get_rules_messages(lines):
     return rules, messages
 
 
-def run():
-    inputlines = util.get_input_lines("19.txt")
-    rules, messages = get_rules_messages(inputlines)
-
+def construct_regex(rules):
     rule0 = rules["0"].copy()
-    resolved = False
 
+    resolved = False
     while not resolved:
         resolved = True
         for idx, token in enumerate(rule0):
@@ -39,7 +36,14 @@ def run():
                 resolved = False
                 break
 
-    regex = "".join(rule0)
-    count = sum(1 for m in messages if re.fullmatch(regex, m))
+    return "".join(rule0)
 
-    return (count,)
+
+def run():
+    inputlines = util.get_input_lines("19.txt")
+    rules, messages = get_rules_messages(inputlines)
+
+    regex1 = construct_regex(rules)
+    count1 = sum(1 for m in messages if re.fullmatch(regex1, m))
+
+    return (count1,)
