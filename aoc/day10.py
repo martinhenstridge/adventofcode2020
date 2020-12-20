@@ -79,7 +79,7 @@ def run():
     diffs = count_differences(chain)
 
     # The maximum allowed joltage difference between adjacent adapters is 3
-    # jolts, so adapter differing from either of its neighbours by this amount
+    # jolts, so adapters differing from either of its neighbours by this amount
     # cannot be removed. The full chain can therefore be split at these points
     # to form distinct sub-sections from which adapters _can_ be removed. The
     # total number of permutations for the whole chain is then the product of
