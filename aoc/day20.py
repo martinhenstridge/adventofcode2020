@@ -20,9 +20,6 @@ class Tile:
             self.BORDERS[border].add(key)
             self.BORDERS["".join(reversed(border))].add(key)
 
-    def __repr__(self):
-        return repr(self.key)
-
     @property
     def borders(self):
         return [
