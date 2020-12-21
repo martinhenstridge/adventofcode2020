@@ -2,10 +2,33 @@ import collections
 from . import util
 
 
-T = 0
-R = 1
-B = 2
-L = 3
+"""
+                  #
+#    ##    ##    ###
+ #  #  #  #  #  #
+"""
+MONSTER = [
+    (0, 18),
+    (1, 0),
+    (1, 5),
+    (1, 6),
+    (1, 11),
+    (1, 12),
+    (1, 17),
+    (1, 18),
+    (1, 19),
+    (2, 1),
+    (2, 4),
+    (2, 7),
+    (2, 10),
+    (2, 13),
+    (2, 16),
+]
+
+TOP = 0
+RIGHT = 1
+BOTTOM = 2
+LEFT = 3
 
 
 class Tile:
@@ -14,29 +37,32 @@ class Tile:
 
     def __init__(self, key, lines):
         self.key = key
-        self.lines = lines
+        self.lines = [[c for c in line] for line in lines]
 
+        # The combination of rotations and flips means that any border could
+        # potentially be reversed in the resulting image - register both
+        # possible values.
         for border in self.borders:
             self.BORDERS[border].add(key)
-            self.BORDERS["".join(reversed(border))].add(key)
+            self.BORDERS[border[::-1]].add(key)
 
     @property
     def borders(self):
         return [
-            self.lines[0],
+            "".join(self.lines[0]),
             "".join(l[-1] for l in self.lines),
-            self.lines[-1],
+            "".join(self.lines[-1]),
             "".join(l[0] for l in self.lines),
         ]
 
     def border(self, which):
-        if which == T:
-            return self.lines[0]
-        if which == R:
+        if which == TOP:
+            return "".join(self.lines[0])
+        if which == RIGHT:
             return "".join(l[-1] for l in self.lines)
-        if which == B:
-            return self.lines[-1]
-        if which == L:
+        if which == BOTTOM:
+            return "".join(self.lines[-1])
+        if which == LEFT:
             return "".join(l[0] for l in self.lines)
 
     def neighbour(self, which):
@@ -47,12 +73,10 @@ class Tile:
         return len({k for b in self.borders for k in self.BORDERS[b] if k != self.key})
 
     def rotate(self):
-        self.lines = [
-            "".join(l[i] for l in reversed(self.lines)) for i in range(len(self.lines))
-        ]
+        self.lines = rotate(self.lines)
 
     def flip(self):
-        self.lines = list(reversed(self.lines))
+        self.lines = flip(self.lines)
 
     def orientations(self):
         for _ in range(4):
@@ -62,6 +86,14 @@ class Tile:
         for _ in range(4):
             yield
             self.rotate()
+
+
+def rotate(square):
+    return [[l[i] for l in reversed(square)] for i in range(len(square))]
+
+
+def flip(square):
+    return list(reversed(square))
 
 
 def get_tiles(lines):
@@ -100,13 +132,13 @@ def arrange(tiles, corner):
     # Rotate the first corner piece such that it has no neighbour either to its
     # left or above it, then insert it at the top-left corner.
     first = tiles[corner]
-    while first.neighbour(T) or first.neighbour(L):
+    while first.neighbour(TOP) or first.neighbour(LEFT):
         first.rotate()
 
     # Connect the leftmost column moving down from the top-left corner, then
     # move across filling out each row from there.
-    column = connect(tiles, first, B, T)
-    return [connect(tiles, k, R, L) for k in column]
+    column = connect(tiles, first, BOTTOM, TOP)
+    return [connect(tiles, k, RIGHT, LEFT) for k in column]
 
 
 def combine(layout):
@@ -118,30 +150,6 @@ def combine(layout):
                 line.extend(tile.lines[idx][1:-1])
             combined.append(line)
     return combined
-
-
-"""
-                  #
-#    ##    ##    ###
- #  #  #  #  #  #
-"""
-MONSTER = [
-    (0, 18),
-    (1, 0),
-    (1, 5),
-    (1, 6),
-    (1, 11),
-    (1, 12),
-    (1, 17),
-    (1, 18),
-    (1, 19),
-    (2, 1),
-    (2, 4),
-    (2, 7),
-    (2, 10),
-    (2, 13),
-    (2, 16),
-]
 
 
 def find_monsters(image, monster):
@@ -164,23 +172,15 @@ def find_monsters(image, monster):
     return count
 
 
-def image_orientations(image):
+def search_image(image, monster):
     # Trial and error shows that rotating the image in its original state yields
     # no monsters, so flip it first. This doesn't work in the general case, but
     # it works for the input provided.
-    image = list(reversed(image))
-    for _ in range(4):
-        yield image
-        image = [[l[i] for l in reversed(image)] for i in range(len(image))]
-    assert False
-
-
-def search_image(image, monster):
-    orientations = image_orientations(image)
+    image = flip(image)
 
     found = False
     while not found:
-        image = next(orientations)
+        image = rotate(image)
         found = find_monsters(image, monster)
 
     return image
@@ -196,7 +196,7 @@ def run():
     layout = arrange(tiles, corners[0])
     image = combine(layout)
 
-    # Mark any monsters then count any remaining # symbols.
+    # Mark any monsters with an O then count any remaining # symbols.
     marked = search_image(image, MONSTER)
     count = sum(1 for row in marked for pixel in row if pixel == "#")
 
