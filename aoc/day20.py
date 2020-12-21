@@ -25,10 +25,10 @@ MONSTER = [
     (2, 16),
 ]
 
-TOP = 0
-RIGHT = 1
-BOTTOM = 2
-LEFT = 3
+N = 0
+E = 1
+S = 2
+W = 3
 
 
 class Tile:
@@ -42,35 +42,34 @@ class Tile:
         # The combination of rotations and flips means that any border could
         # potentially be reversed in the resulting image - register both
         # possible values.
-        for border in self.borders:
+        for direction in [N, E, S, W]:
+            border = self.border(direction)
             self.BORDERS[border].add(key)
             self.BORDERS[border[::-1]].add(key)
 
-    @property
-    def borders(self):
-        return [
-            "".join(self.lines[0]),
-            "".join(l[-1] for l in self.lines),
-            "".join(self.lines[-1]),
-            "".join(l[0] for l in self.lines),
-        ]
-
-    def border(self, which):
-        if which == TOP:
+    def border(self, direction):
+        if direction == N:
             return "".join(self.lines[0])
-        if which == RIGHT:
+        if direction == E:
             return "".join(l[-1] for l in self.lines)
-        if which == BOTTOM:
+        if direction == S:
             return "".join(self.lines[-1])
-        if which == LEFT:
+        if direction == W:
             return "".join(l[0] for l in self.lines)
 
-    def neighbour(self, which):
-        neighbours = {k for k in self.BORDERS[self.border(which)] if k != self.key}
+    def neighbour(self, direction):
+        neighbours = {k for k in self.BORDERS[self.border(direction)] if k != self.key}
         return neighbours.pop() if neighbours else None
 
     def count_neighbours(self):
-        return len({k for b in self.borders for k in self.BORDERS[b] if k != self.key})
+        return len(
+            {
+                k
+                for b in [self.border(d) for d in [N, E, S, W]]
+                for k in self.BORDERS[b]
+                if k != self.key
+            }
+        )
 
     def rotate(self):
         self.lines = rotate(self.lines)
@@ -86,6 +85,7 @@ class Tile:
         for _ in range(4):
             yield
             self.rotate()
+        assert False
 
 
 def rotate(square):
@@ -112,7 +112,7 @@ def get_tiles(lines):
 def connect(tiles, tile, prev, curr):
     line = []
     while True:
-        # Find the next tile, which must match the border from the previous
+        # Find the next tile, direction must match the border from the previous
         # tile.
         line.append(tile)
         target = tile.border(prev)
@@ -130,15 +130,15 @@ def connect(tiles, tile, prev, curr):
 
 def arrange(tiles, corner):
     # Rotate the first corner piece such that it has no neighbour either to its
-    # left or above it, then insert it at the top-left corner.
+    # north or to its, then insert it at the north-west corner.
     first = tiles[corner]
-    while first.neighbour(TOP) or first.neighbour(LEFT):
+    while first.neighbour(N) or first.neighbour(W):
         first.rotate()
 
-    # Connect the leftmost column moving down from the top-left corner, then
-    # move across filling out each row from there.
-    column = connect(tiles, first, BOTTOM, TOP)
-    return [connect(tiles, k, RIGHT, LEFT) for k in column]
+    # Connect the westmost column moving south from the north-west corner, then
+    # move east filling out each row from there.
+    column = connect(tiles, first, S, N)
+    return [connect(tiles, k, E, W) for k in column]
 
 
 def combine(layout):
