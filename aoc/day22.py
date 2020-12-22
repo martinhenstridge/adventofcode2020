@@ -41,7 +41,7 @@ CACHE = {}
 def play_recursive_combat(_deck1, _deck2):
     deck1 = _deck1.copy()
     deck2 = _deck2.copy()
-    history = set()
+    rounds = set()
 
     while True:
         signature = tuple(deck1), tuple(deck2)
@@ -51,10 +51,10 @@ def play_recursive_combat(_deck1, _deck2):
             break
 
         # Check for identical previous round.
-        if signature in history:
+        if signature in rounds:
             CACHE[signature] = 1, deck1
             break
-        history.add(signature)
+        rounds.add(signature)
 
         # Draw cards and play.
         card1 = deck1.pop(0)
