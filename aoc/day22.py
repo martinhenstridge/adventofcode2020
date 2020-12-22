@@ -1,4 +1,3 @@
-import collections
 from . import util
 
 
@@ -17,12 +16,12 @@ def get_decks(lines):
 
 
 def play_combat(_deck1, _deck2):
-    deck1 = collections.deque(_deck1)
-    deck2 = collections.deque(_deck2)
+    deck1 = _deck1.copy()
+    deck2 = _deck2.copy()
 
     while True:
-        card1 = deck1.popleft()
-        card2 = deck2.popleft()
+        card1 = deck1.pop(0)
+        card2 = deck2.pop(0)
 
         if card1 > card2:
             deck1.append(card1)
@@ -40,8 +39,8 @@ CACHE = {}
 
 
 def play_recursive_combat(_deck1, _deck2):
-    deck1 = collections.deque(_deck1)
-    deck2 = collections.deque(_deck2)
+    deck1 = _deck1.copy()
+    deck2 = _deck2.copy()
     history = set()
 
     while True:
@@ -58,12 +57,10 @@ def play_recursive_combat(_deck1, _deck2):
         history.add(signature)
 
         # Draw cards and play.
-        card1 = deck1.popleft()
-        card2 = deck2.popleft()
+        card1 = deck1.pop(0)
+        card2 = deck2.pop(0)
         if len(deck1) >= card1 and len(deck2) >= card2:
-            subdeck1 = list(deck1)[:card1]
-            subdeck2 = list(deck2)[:card2]
-            winner, _ = play_recursive_combat(subdeck1, subdeck2)
+            winner, _ = play_recursive_combat(deck1[:card1], deck2[:card2])
         elif card1 > card2:
             winner = 1
         else:
