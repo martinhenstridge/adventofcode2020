@@ -3,19 +3,21 @@ import time
 from . import DAYS
 
 
-def run(solvers, day):
+def run(day, solver, solutions):
     start = time.monotonic()
-    parts = solvers[day].run()
+    results = solver.run()
+    assert results == solutions
     end = time.monotonic()
 
     print()
-    for idx, part in enumerate(parts):
-        print(f"[{day}/{idx+1}] {part}")
+    for idx, result in enumerate(results):
+        print(f"[{day}/{idx+1}] {result}")
     print(f"{1000 * (end - start):.3f}ms")
 
 
 if len(sys.argv) > 1:
-    run(DAYS, sys.argv[1])
+    day = sys.argv[1]
+    run(day, *DAYS[day])
 else:
     for day in DAYS:
-        run(DAYS, day)
+        run(day, *DAYS[day])
