@@ -20,6 +20,10 @@ from . import (
     day19,
     day20,
     day21,
+    day22,
+    day23,
+    day24,
+    day25,
 )
 
 DAYS = {
@@ -44,4 +48,8 @@ DAYS = {
     "19": day19,
     "20": day20,
     "21": day21,
+    "22": day22,
+    #"23": day23,
+    #"24": day24,
+    #"25": day25,
 }
