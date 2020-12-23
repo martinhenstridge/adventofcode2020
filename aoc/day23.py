@@ -2,6 +2,8 @@ from . import util
 
 
 class Cup:
+    __slots__ = "val", "next"
+
     def __init__(self, val):
         self.val = val
         self.next = None
