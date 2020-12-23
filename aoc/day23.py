@@ -12,7 +12,7 @@ def get_cups(lines):
 
 
 def construct_ring(vals):
-    cups = {}
+    cups = [None] * len(vals)
     tail = Cup(None)
 
     # Connect cups together in a linked list.
@@ -23,8 +23,9 @@ def construct_ring(vals):
         tail = cup
 
     # Connect the tail around to the head to make a ring.
-    tail.next = cups[vals[0]]
-    return cups
+    head = cups[vals[0]]
+    tail.next = head
+    return cups, head
 
 
 def get_cups_after(cups, val, count):
@@ -39,35 +40,34 @@ def get_cups_after(cups, val, count):
 
 
 def play(vals, turns, retcount):
-    cups = construct_ring(vals)
     size = len(vals)
+    cups, curr = construct_ring(vals)
 
-    curr_cup = cups[vals[0]]
     for _ in range(turns):
         # Pick out the following three cups. Leave them connected up for now -
         # they may not actually need to be moved.
         picked_cups = []
-        picked_head = curr_cup.next
-        picked_tail = curr_cup
+        picked_head = curr.next
+        picked_tail = curr
         for _ in range(3):
             picked_tail = picked_tail.next
             picked_cups.append(picked_tail.val)
 
         # Decide where to re-insert them.
-        dest_val = (curr_cup.val - 1) % size
-        while dest_val in picked_cups:
-            dest_val = (dest_val - 1) % size
-        dest_cup = cups[dest_val]
+        val = (curr.val - 1) % size
+        while val in picked_cups:
+            val = (val - 1) % size
+        dest = cups[val]
 
         # Re-insert cups, noting that work is only required in the case that
         # they're actually being moved from their starting position.
-        if dest_cup.val != curr_cup.val:
-            curr_cup.next = picked_tail.next
-            picked_tail.next = dest_cup.next
-            dest_cup.next = picked_head
+        if dest.val != curr.val:
+            curr.next = picked_tail.next
+            picked_tail.next = dest.next
+            dest.next = picked_head
 
         # Move around the ring to the next cup.
-        curr_cup = curr_cup.next
+        curr = curr.next
 
     return get_cups_after(cups, 0, retcount)
 
