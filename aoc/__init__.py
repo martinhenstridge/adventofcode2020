@@ -49,7 +49,7 @@ DAYS = {
     "20": (day20, (20033377297069, 2084)),
     "21": (day21, (1679, "lmxt,rggkbpj,mxf,gpxmf,nmtzlj,dlkxsxg,fvqg,dxzq")),
     "22": (day22, (32102, 34173)),
-    "23": (day23, (49576328, None)),
+    "23": (day23, (49576328, 511780369955)),
     #"24": (day24, (None, None)),
     #"25": (day25, (None, None)),
 }
