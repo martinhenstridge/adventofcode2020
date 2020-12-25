@@ -5,19 +5,16 @@ def get_public_keys(lines):
     return tuple(int(l) for l in lines)
 
 
-def transform_subject(subject, loopsize):
-    value = 1
-    for _ in range(loopsize):
-        value = (value * subject) % 20201227
-    return value
+def transform_subject(subject, loop_size):
+    return pow(subject, loop_size, 20201227)
 
 
 def find_loop_size(public_key):
     value = 1
     count = 0
     while value != public_key:
-        count += 1
         value = (value * 7) % 20201227
+        count += 1
     return count
 
 
